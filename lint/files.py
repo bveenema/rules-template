@@ -43,7 +43,7 @@ def load_indexed_files(root: Path) -> list[tuple[str, str]]:
     """Return text for staged files and for untracked files that are not ignored.
 
     Staged content is what a commit will record. Untracked files are included
-    so `python3 -m lint` sees new files before `git add`. When the worktree
+    so `sh scripts/py -m lint` sees new files before `git add`. When the worktree
     copy of a staged file differs, both copies are checked.
     """
     tracked = _listed(root, "ls-files", "-z")

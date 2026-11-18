@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# Run with: sh scripts/py scripts/sync-from-template.py
 """Pull rule and config updates from the template into an existing repo.
 
 Project-owned files are not overwritten. The blocklist, the banned-client
@@ -7,7 +7,7 @@ Custom rules under rules/ are left alone except for the example rule, which
 the template owns.
 
 Usage:
-  python3 scripts/sync-from-template.py [--source URL-or-path] [--dest PATH] [--dry-run]
+  sh scripts/py scripts/sync-from-template.py [--source URL-or-path] [--dest PATH] [--dry-run]
 
 The default source is git@github.com:bveenema/rules-template.git. Pass a
 local checkout with --source to try a sync without cloning.

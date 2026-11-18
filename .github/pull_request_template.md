@@ -12,4 +12,4 @@ Trivial change: put `[skip-docs]` in the PR body or a commit message, or add the
 
 ## Checks
 
-`python3 -m lint` passes locally. CI runs the same command and is the gate before Bugbot.
+`sh scripts/py -m lint` passes locally. CI runs the same command and is the gate before Bugbot.

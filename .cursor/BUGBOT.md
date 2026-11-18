@@ -27,4 +27,4 @@ Review order for this repository:
   - the Hephaestus vendor manifest source
   - custom rules in `rules/`
 
-Leave those to `python3 -m lint`. If lint failed, do not repeat its findings.
+Leave those to `sh scripts/py -m lint`. If lint failed, do not repeat its findings.

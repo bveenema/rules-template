@@ -1,5 +1,7 @@
 """One failure line, same shape for every rule."""
 
+from __future__ import annotations
+
 
 def format_finding(rule: str, path: str, line: int | None, message: str) -> str:
     if path and line:

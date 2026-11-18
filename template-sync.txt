@@ -11,6 +11,7 @@ sync .cursor/BUGBOT.md
 sync .cursor/config/bugbot.yaml
 sync .cursor/rules/house-rules.mdc
 sync scripts/setup-hooks.sh
+sync scripts/py
 sync scripts/install-gitleaks.sh
 sync scripts/pin-hephaestus-source.sh
 sync scripts/sync-from-template.py
@@ -29,4 +30,5 @@ init config/email-allowlist.txt
 init kb/index.md
 init .github/pull_request_template.md
 init .gitignore
+init .gitattributes
 init CLAUDE.md

@@ -1,6 +1,6 @@
 """Run the built-in rules and any project rules under rules/."""
 
-from __future__ import annotations
+from __future__ import annotations  # Python 3.9 evaluates annotations later.
 
 import sys
 from pathlib import Path
@@ -21,7 +21,7 @@ RULES = (
 def _usage() -> str:
     names = " ".join(RULES)
     return (
-        "Usage: python3 -m lint [rule ...]\n"
+        "Usage: sh scripts/py -m lint [rule ...]\n"
         f"Rules: {names}\n"
         "With no arguments, every rule runs.\n"
     )

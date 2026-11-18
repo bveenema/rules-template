@@ -1,14 +1,14 @@
 # Checks
 
-`python3 -m lint` runs every check below. The pre-commit hook and the `lint` GitHub Actions workflow run that same command. The suite is meant to finish in seconds. Tests live in `tests/` and `rules/test_*.py`.
+`sh scripts/py -m lint` runs every check below. The pre-commit hook and the `lint` GitHub Actions workflow run that same command. `sh scripts/py` picks the first Python 3.9+ interpreter among `python3`, `python`, and `py -3`, so the commands do not assume one of those names exists. On Windows, run them from Git Bash. The suite is meant to finish in seconds. Tests live in `tests/` and `rules/test_*.py`.
 
 ```bash
-python3 -m lint
-python3 -m unittest discover -s tests -v
-python3 -m unittest discover -s rules -p 'test_*.py' -v
+sh scripts/py -m lint
+sh scripts/py -m unittest discover -s tests -v
+sh scripts/py -m unittest discover -s rules -p 'test_*.py' -v
 ```
 
-Run one rule with `python3 -m lint <name>`. Names: `secrets`, `private-info`, `banned-clients`, `docs`, `hephaestus`, `custom`.
+Run one rule with `sh scripts/py -m lint <name>`. Names: `secrets`, `private-info`, `banned-clients`, `docs`, `hephaestus`, `custom`.
 
 Failure lines share one shape: `rule: path:line: what is wrong. How to fix it.`
 

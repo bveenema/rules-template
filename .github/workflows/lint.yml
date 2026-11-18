@@ -32,9 +32,9 @@ jobs:
         env:
           PRIVATE_INFO_BLOCKLIST: ${{ secrets.PRIVATE_INFO_BLOCKLIST }}
           LINT_BASE: origin/${{ github.base_ref || 'main' }}
-        run: python3 -m lint
+        run: sh scripts/py -m lint
 
       - name: Run tests
         run: |
-          python3 -m unittest discover -s tests -v
-          python3 -m unittest discover -s rules -p 'test_*.py' -v
+          sh scripts/py -m unittest discover -s tests -v
+          sh scripts/py -m unittest discover -s rules -p 'test_*.py' -v

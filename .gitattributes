@@ -1,0 +1,5 @@
+# Shell entry points must stay LF so Git Bash on Windows can run them.
+scripts/py text eol=lf
+*.sh text eol=lf
+.githooks/* text eol=lf
+lefthook.yml text eol=lf

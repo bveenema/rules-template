@@ -1,7 +1,7 @@
 """Example project rule. Copy this file to add your own.
 
 Contract:
-  - A rules/*.py module (not test_*.py) is loaded by `python3 -m lint`.
+  - A rules/*.py module (not test_*.py) is loaded by `sh scripts/py -m lint`.
   - Define check(files) -> list[str].
   - files is a list of (repo-relative path, text) for indexed text files.
   - Each string is a failure line: "<name>: <path>:<line>: <what>. <how to fix>."

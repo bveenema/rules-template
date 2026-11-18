@@ -202,7 +202,7 @@ def check(root: Path) -> tuple[list[str], list[str]]:
     if base is None or not _ref_exists(root, base):
         message = (
             "docs: could not find a base ref to compare. Set LINT_BASE to the branch this change "
-            "merges into (for example origin/main) and re-run python3 -m lint."
+            "merges into (for example origin/main) and re-run sh scripts/py -m lint."
         )
         if os.environ.get("GITHUB_ACTIONS") == "true" or os.environ.get("LINT_DOCS_REQUIRED") == "1":
             return [message], []
@@ -214,7 +214,7 @@ def check(root: Path) -> tuple[list[str], list[str]]:
                 RULE,
                 "",
                 None,
-                f"could not diff against {base}. Fetch the base branch and re-run python3 -m lint.",
+                f"could not diff against {base}. Fetch the base branch and re-run sh scripts/py -m lint.",
             )
         ], []
     labels, body = _github_metadata()

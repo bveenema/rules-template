@@ -4,10 +4,10 @@
 
 ```bash
 # Test
-python3 -m unittest discover -s tests -v && python3 -m unittest discover -s rules -p 'test_*.py' -v
+sh scripts/py -m unittest discover -s tests -v && sh scripts/py -m unittest discover -s rules -p 'test_*.py' -v
 
 # Lint
-python3 -m lint
+sh scripts/py -m lint
 
 # Build
 # This template has no build step.
@@ -17,7 +17,7 @@ python3 -m lint
 
 Delivery uses the vendored Hephaestus flows from `git@github.com:bveenema/hephaestus.git`: `/orient`, `/autopilot`, `/critique`, `/ship`, and `/finish`.
 
-House rules for agents live in `AGENTS.md` and `.cursor/rules/house-rules.mdc`. Run `python3 -m lint` before every commit and push, and fix failures yourself.
+House rules for agents live in `AGENTS.md` and `.cursor/rules/house-rules.mdc`. Run `sh scripts/py -m lint` before every commit and push, and fix failures yourself.
 
 ## Docs requirements
 

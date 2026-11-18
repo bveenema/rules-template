@@ -49,7 +49,7 @@ class SyncTest(unittest.TestCase):
             )
             agents = (dest / "AGENTS.md").read_text(encoding="utf-8")
             self.assertIn("Keep this section.", agents)
-            self.assertIn("python3 -m lint", agents)
+            self.assertIn("sh scripts/py -m lint", agents)
             self.assertNotIn("old rules", agents)
             self.assertTrue(any("AGENTS.md house-rules" in line for line in lines))
 

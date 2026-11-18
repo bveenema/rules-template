@@ -1,12 +1,13 @@
-# Local hooks. CI runs the same `python3 -m lint` command.
-# commit-msg runs the docs check again so a [skip-docs] marker in the
-# commit message is visible at commit time.
+# Local hooks. CI runs the same `sh scripts/py -m lint` command.
+# Call sh explicitly so Git Bash on Windows does not need a Python shebang
+# or the executable bit on scripts/py.
+# commit-msg reuses .githooks/commit-msg, which reads the message file.
 pre-commit:
   commands:
     lint:
-      run: python3 -m lint
+      run: sh scripts/py -m lint
 
 commit-msg:
   commands:
     docs:
-      run: LINT_COMMIT_MSG="$(cat {1})" python3 -m lint docs
+      run: sh .githooks/commit-msg "{1}"

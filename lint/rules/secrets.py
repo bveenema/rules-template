@@ -81,7 +81,7 @@ def check(root: Path) -> list[str]:
                 "",
                 None,
                 "gitleaks is not installed. Run scripts/install-gitleaks.sh "
-                f"(pinned {GITLEAKS_VERSION}) or put the gitleaks binary on PATH, then re-run python3 -m lint.",
+                f"(pinned {GITLEAKS_VERSION}) or put the gitleaks binary on PATH, then re-run sh scripts/py -m lint.",
             )
         ]
 
@@ -122,7 +122,7 @@ def check(root: Path) -> list[str]:
                     RULE,
                     "",
                     None,
-                    f"gitleaks could not scan the tree ({tail}). Install gitleaks {GITLEAKS_VERSION} and re-run python3 -m lint.",
+                    f"gitleaks could not scan the tree ({tail}). Install gitleaks {GITLEAKS_VERSION} and re-run sh scripts/py -m lint.",
                 )
             ]
         try:
@@ -133,7 +133,7 @@ def check(root: Path) -> list[str]:
                     RULE,
                     "",
                     None,
-                    "gitleaks wrote a report that could not be read. Re-run python3 -m lint after updating gitleaks.",
+                    "gitleaks wrote a report that could not be read. Re-run sh scripts/py -m lint after updating gitleaks.",
                 )
             ]
 

@@ -7,7 +7,7 @@ alwaysApply: true
 
 Use the Hephaestus flows for delivery work: `/orient`, `/autopilot`, `/critique`, `/ship`, and `/finish`.
 
-Before every commit and before every push, run `python3 -m lint`. Fix every failure yourself and run it again. Do not push code that fails lint.
+Before every commit and before every push, run `sh scripts/py -m lint`. Fix every failure yourself and run it again. Do not push code that fails lint.
 
 When a change touches code, update `CHANGELOG.md`, a page under `kb/`, and `README.md` in the same pull request. Use `[skip-docs]` only when a docs update is not appropriate for a trivial change. Partial markers are `[skip-changelog]`, `[skip-kb]`, and `[skip-readme]`.
 

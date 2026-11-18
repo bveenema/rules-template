@@ -1,6 +1,6 @@
 # Project rules
 
-`python3 -m lint` loads every `rules/*.py` module and calls `check(files)`.
+`sh scripts/py -m lint` loads every `rules/*.py` module and calls `check(files)`.
 
 - `files` is a list of `(relative path, text)` for text files in the git index.
 - Return a list of failure strings. An empty list means the rule passed.
@@ -11,5 +11,5 @@
 Run the example test:
 
 ```bash
-python3 -m unittest discover -s rules -p 'test_*.py' -v
+sh scripts/py -m unittest discover -s rules -p 'test_*.py' -v
 ```

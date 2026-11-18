@@ -1,7 +1,8 @@
 #!/bin/sh
 # Re-run the docs check with the commit message so [skip-docs] is visible.
+# sh runs the launcher so Git Bash does not need a Python shebang.
 set -eu
 cd "$(git rev-parse --show-toplevel)"
 LINT_COMMIT_MSG="$(cat "$1")"
 export LINT_COMMIT_MSG
-exec python3 -m lint docs
+exec sh scripts/py -m lint docs

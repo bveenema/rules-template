@@ -9,7 +9,7 @@ The checks follow the approach in [Stop burning tokens on code review](https://s
 ## What you get
 
 - Hephaestus vendored from `git@github.com:bveenema/hephaestus.git` (master) with `install.sh --vendor`. Agents use `/orient`, `/autopilot`, `/critique`, `/ship`, and `/finish`.
-- `python3 -m lint` — secrets, private information, banned database clients, docs on every code change, the Hephaestus manifest, and project rules in `rules/`.
+- `sh scripts/py -m lint` — secrets, private information, banned database clients, docs on every code change, the Hephaestus manifest, and project rules in `rules/`.
 - A pre-commit hook and a GitHub Actions workflow named `lint` that run that same command. The workflow is the gate before Bugbot.
 - `.cursor/BUGBOT.md` so Bugbot skips what the linters already enforce.
 - `AGENTS.md`, `CLAUDE.md`, and `.cursor/rules/house-rules.mdc`.
@@ -27,7 +27,7 @@ git clone git@github.com:OWNER/NEW-REPO.git
 cd NEW-REPO
 bash scripts/setup-hooks.sh
 bash scripts/install-gitleaks.sh
-python3 -m lint
+sh scripts/py -m lint
 ```
 
 Then replace the placeholders:
@@ -39,7 +39,7 @@ Then replace the placeholders:
 - Create the private blocklist (next section). Do not commit it.
 - Add project rules by copying `rules/example_forbidden_token.py`.
 
-`scripts/setup-hooks.sh` uses lefthook when it is installed, and otherwise sets `core.hooksPath` to `.githooks`. Both run `python3 -m lint`.
+`scripts/setup-hooks.sh` uses lefthook when it is installed, and otherwise sets `core.hooksPath` to `.githooks`. Both run `sh scripts/py -m lint`.
 
 ## Configure the private-information blocklist
 
@@ -64,13 +64,13 @@ env:
 ## Run the checks
 
 ```bash
-python3 -m lint
-python3 -m lint secrets          # one rule
-python3 -m unittest discover -s tests -v
-python3 -m unittest discover -s rules -p 'test_*.py' -v
+sh scripts/py -m lint
+sh scripts/py -m lint secrets          # one rule
+sh scripts/py -m unittest discover -s tests -v
+sh scripts/py -m unittest discover -s rules -p 'test_*.py' -v
 ```
 
-Python 3.11 or newer is enough. The only extra binary is gitleaks, installed with `scripts/install-gitleaks.sh`.
+`sh scripts/py` is the interpreter. It runs the first of `python3`, `python`, and `py -3` that is Python 3.9 or newer, and it skips a `python` that is still Python 2. On Windows, run it from Git Bash. The only extra binary is gitleaks, installed with `scripts/install-gitleaks.sh`.
 
 A code change has to update `CHANGELOG.md`, a page under `kb/`, and `README.md`. For a trivial change, start the commit subject or a pull-request line with `[skip-docs]`, or add the `skip-docs` label. Partial markers are `[skip-changelog]`, `[skip-kb]`, and `[skip-readme]`. A sentence that only mentions the marker does not opt out. The pre-commit hook runs before git has the message, so export the same text when you opt out locally:
 
@@ -80,7 +80,7 @@ LINT_COMMIT_MSG='[skip-docs] typo' git commit -m '[skip-docs] typo'
 
 ## Review order
 
-1. **Lint.** The hook runs `python3 -m lint` before the commit. GitHub Actions runs it again on the pull request. Require the `lint` check in branch protection.
+1. **Lint.** The hook runs `sh scripts/py -m lint` before the commit. GitHub Actions runs it again on the pull request. Require the `lint` check in branch protection.
 2. **Bugbot, once per head.** `.cursor/config/bugbot.yaml` sets `triggers.frequency: everyPush`. Bugbot reads that file from the base branch, so it takes effect after it is merged. `.cursor/BUGBOT.md` tells Bugbot to look for logic, business-rule, and cross-system bugs, and to skip findings the linters already report.
 3. **Human review** after lint is green and Bugbot has commented.
 
@@ -92,7 +92,7 @@ To refresh later, run that repository's `update.sh --vendor` against this checko
 
 ## Add a project rule
 
-Copy `rules/example_forbidden_token.py` to a new name under `rules/`, change the token it forbids, and add a `test_*.py` next to it. `rules/README.md` is the contract. `python3 -m lint` loads every non-test module in that folder.
+Copy `rules/example_forbidden_token.py` to a new name under `rules/`, change the token it forbids, and add a `test_*.py` next to it. `rules/README.md` is the contract. `sh scripts/py -m lint` loads every non-test module in that folder.
 
 ## Adopt an existing repo
 
@@ -100,17 +100,17 @@ The sync script copies template-owned rules and docs into a repo that is already
 
 ```bash
 git clone git@github.com:bveenema/rules-template.git /tmp/rules-template
-python3 /tmp/rules-template/scripts/sync-from-template.py --source /tmp/rules-template --dest .
+sh /tmp/rules-template/scripts/py /tmp/rules-template/scripts/sync-from-template.py --source /tmp/rules-template --dest .
 ```
 
 `--dry-run` prints the copies and the files it will keep. The script clones over SSH and does not fall back to HTTPS. Pass `--source` with a local checkout when you already have one.
 
-Sync does not vendor Hephaestus. If the destination has no `.heph-manifest`, vendor it from `git@github.com:bveenema/hephaestus.git` and pin the source. Then run `scripts/setup-hooks.sh`, `scripts/install-gitleaks.sh`, and `python3 -m lint`.
+Sync does not vendor Hephaestus. If the destination has no `.heph-manifest`, vendor it from `git@github.com:bveenema/hephaestus.git` and pin the source. Then run `scripts/setup-hooks.sh`, `scripts/install-gitleaks.sh`, and `sh scripts/py -m lint`.
 
 Later updates from a checkout that already has the script:
 
 ```bash
-python3 scripts/sync-from-template.py
+sh scripts/py scripts/sync-from-template.py
 ```
 
 `kb/checks.md` is replaced on sync. Keep project notes on other pages under `kb/`.
