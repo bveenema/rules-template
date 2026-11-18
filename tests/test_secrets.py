@@ -6,7 +6,7 @@ import os
 import unittest
 from pathlib import Path
 
-from lint.rules.secrets import check
+from lint.rules.secrets import check, gitleaks_binary
 from tests.support import ROOT
 
 
@@ -61,6 +61,32 @@ class SecretsTest(unittest.TestCase):
             dest.mkdir(parents=True)
             (dest / "sample.env").write_text(f"token={token}\n", encoding="utf-8")
             self.assertEqual(check(root), [])
+
+
+class GitleaksExeTest(unittest.TestCase):
+    def test_finds_gitleaks_exe_in_tools(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            exe = root / ".tools" / "gitleaks.exe"
+            exe.parent.mkdir()
+            exe.write_bytes(b"")
+            previous_bin = os.environ.pop("GITLEAKS_BIN", None)
+            previous_path = os.environ.get("PATH")
+            os.environ["PATH"] = "/usr/bin:/bin"
+            try:
+                found = gitleaks_binary(root)
+            finally:
+                if previous_bin is None:
+                    os.environ.pop("GITLEAKS_BIN", None)
+                else:
+                    os.environ["GITLEAKS_BIN"] = previous_bin
+                if previous_path is None:
+                    os.environ.pop("PATH", None)
+                else:
+                    os.environ["PATH"] = previous_path
+            self.assertEqual(found, str(exe))
 
 
 if __name__ == "__main__":

@@ -70,7 +70,7 @@ sh scripts/py -m unittest discover -s tests -v
 sh scripts/py -m unittest discover -s rules -p 'test_*.py' -v
 ```
 
-`sh scripts/py` is the interpreter. It runs the first of `python3`, `python`, and `py -3` that is Python 3.9 or newer, and it skips a `python` that is still Python 2. On Windows, run it from Git Bash. The only extra binary is gitleaks, installed with `scripts/install-gitleaks.sh`.
+`sh scripts/py` is the interpreter. It runs the first of `python3`, `python`, and `py -3` that is Python 3.9 or newer, and it skips a `python` that is still Python 2. On Windows, run it from Git Bash. The only extra binary is gitleaks, installed with `scripts/install-gitleaks.sh`. That script installs a tar.gz on Linux and macOS. On Git Bash it detects MINGW, MSYS, or Cygwin and installs the matching windows x64 or arm64 zip as `.tools/gitleaks.exe`.
 
 A code change has to update `CHANGELOG.md`, a page under `kb/`, and `README.md`. For a trivial change, start the commit subject or a pull-request line with `[skip-docs]`, or add the `skip-docs` label. Partial markers are `[skip-changelog]`, `[skip-kb]`, and `[skip-readme]`. A sentence that only mentions the marker does not opt out. The pre-commit hook runs before git has the message, so export the same text when you opt out locally:
 

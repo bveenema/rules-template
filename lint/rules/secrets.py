@@ -19,12 +19,17 @@ def gitleaks_binary(root: Path) -> str | None:
     override = os.environ.get("GITLEAKS_BIN")
     if override and Path(override).is_file():
         return override
-    found = shutil.which("gitleaks")
-    if found:
-        return found
-    local = root / ".tools" / "gitleaks"
-    if local.is_file():
-        return str(local)
+    # Windows installs ship gitleaks.exe. which("gitleaks") finds it when
+    # PATHEXT includes .EXE; the explicit name covers a PATH entry that does not.
+    for name in ("gitleaks", "gitleaks.exe"):
+        found = shutil.which(name)
+        if found:
+            return found
+    tools = root / ".tools"
+    for name in ("gitleaks", "gitleaks.exe"):
+        local = tools / name
+        if local.is_file():
+            return str(local)
     return None
 
 

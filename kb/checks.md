@@ -16,7 +16,7 @@ The pre-commit hook is the real guard. It runs before the commit exists, so a co
 
 ## secrets
 
-Gitleaks scans the tree with its default rules. `scripts/install-gitleaks.sh` installs the pinned binary and checks its checksum. The runner also accepts `gitleaks` on `PATH` or `GITLEAKS_BIN`.
+Gitleaks scans the tree with its default rules. `scripts/install-gitleaks.sh` installs the pinned binary and checks its checksum. On Linux and macOS that is a tar.gz. On Git Bash for Windows (`uname` reports MINGW, MSYS, or Cygwin) it downloads the matching windows x64 or arm64 zip, extracts it with `unzip` or `sh scripts/py -m zipfile -e`, and writes `.tools/gitleaks.exe`. The runner accepts `gitleaks` or `gitleaks.exe` on `PATH`, `GITLEAKS_BIN`, or either name under `.tools/`.
 
 Paths under `tests/fixtures/` are allowlisted, along with `__pycache__`, `.git`, and `.tools`. Add more path regexes, one per line, in `config/gitleaks-allowlist.txt`. That file is project-owned and is not overwritten by template sync once it exists.
 

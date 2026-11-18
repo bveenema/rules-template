@@ -18,3 +18,4 @@ All notable changes to this template are documented here.
 ### Fixed
 
 - A docs opt-out marker counts only when it is the first token on its line. Mentioning the marker in prose does not skip the check.
+- `scripts/install-gitleaks.sh` installs gitleaks on Git Bash for Windows. `uname` values MINGW, MSYS, and Cygwin select the windows x64 or arm64 zip, and the secrets check finds `gitleaks.exe`.
