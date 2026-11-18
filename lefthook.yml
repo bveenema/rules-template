@@ -1,0 +1,12 @@
+# Local hooks. CI runs the same `python3 -m lint` command.
+# commit-msg runs the docs check again so a [skip-docs] marker in the
+# commit message is visible at commit time.
+pre-commit:
+  commands:
+    lint:
+      run: python3 -m lint
+
+commit-msg:
+  commands:
+    docs:
+      run: LINT_COMMIT_MSG="$(cat {1})" python3 -m lint docs

@@ -1,0 +1,4 @@
+# Extra public email domains, one per line. Lines starting with # are ignored.
+# Built in already: example.com, example.org, example.net, example.edu,
+# github.com, users.noreply.github.com, localhost.
+# This file is project-owned. Template sync does not overwrite it once it exists.

@@ -1,0 +1,25 @@
+---
+description: "Update hephaestus to the latest version."
+---
+<!-- requires: none -->
+<!-- chains: none -->
+<!-- generated from .ai/workflows/update-hephaestus.md; do not edit directly -->
+
+> **OpenCode:** start from the project root that contains `.opencode/`. Spawn role agents with the Task tool or @mentions when required.
+
+Update hephaestus to the latest version.
+
+## Steps
+
+1. Detect the install:
+   - `.heph-manifest` in the project root → **vendored** (its `# version:` line is the current version)
+   - otherwise resolve the clone: `dirname $(dirname $(dirname $(readlink ~/.claude/commands/ship.md)))`, falling back to `$HEPHAESTUS_HOME` or `~/.hephaestus` → **user-level**
+   - neither → **plugin** install: run `/plugin marketplace update hephaestus` and stop here.
+2. Run the updater — it pulls, re-installs, and prints the version transition plus the commits in between:
+   - user-level: `bash <clone>/update.sh`
+   - vendored: `bash <clone>/update.sh --vendor .`
+3. Report the version transition and what changed.
+4. Vendored installs only — commit the refreshed copy. Stage every path `update.sh` printed — derived from `.heph-manifest` (the manifest plus every unique top-level path it lists) and installer-written project files that exist (`opencode.json`, `AGENTS.md`). Do not hardcode adapter directories; a new harness would be left out. Then:
+   ```
+   git commit -m "chore: update hephaestus to <new_version>"
+   ```

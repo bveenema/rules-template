@@ -1,0 +1,6 @@
+# Extra gitleaks path regexes, one per line. Lines starting with # are ignored.
+# These are added to the built-in allowlist for tests/fixtures/.
+# This file is project-owned. Template sync does not overwrite it once it exists.
+#
+# Example regex (keep commented until you need it):
+# (^|/)fixtures/samples/

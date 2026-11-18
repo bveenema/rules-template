@@ -1,0 +1,40 @@
+# Deterministic checks. This workflow is the gate before Bugbot and human review.
+# Bugbot runs once per new head (see .cursor/config/bugbot.yaml). It reads that
+# file from the base branch, so the setting applies after this change is merged.
+name: lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch base branch
+        if: github.event_name == 'pull_request'
+        run: git fetch origin "${{ github.base_ref }}"
+
+      - name: Install gitleaks
+        run: bash scripts/install-gitleaks.sh
+
+      - name: Run checks
+        env:
+          PRIVATE_INFO_BLOCKLIST: ${{ secrets.PRIVATE_INFO_BLOCKLIST }}
+          LINT_BASE: origin/${{ github.base_ref || 'main' }}
+        run: python3 -m lint
+
+      - name: Run tests
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 -m unittest discover -s rules -p 'test_*.py' -v

@@ -1,0 +1,89 @@
+---
+name: start-issue
+description: "Start working on issue <argument>. Run autonomously through…"
+platforms: [linux, macos, windows]
+metadata:
+  hermes:
+    category: hephaestus
+    tags: [hephaestus, delivery, start-issue]
+    requires_toolsets: [terminal]
+    related_skills: [test-issue]
+---
+<!-- requires: coder, explorer -->
+<!-- chains: /test-issue -->
+<!-- generated from .ai/workflows/start-issue.md; do not edit directly -->
+
+> **Hermes:** this skill is the `/start-issue` adapter.
+> Where a step below delegates to a role (coder, explorer), you **must** call `delegate_task` for it rather than doing that step yourself — measured on `/refactor`: orchestrators otherwise inline the whole workflow and never delegate. Each role's toolsets, cap and prompt are in `.hermes/agents/<role>.md`. A delegate inherits **none** of your conversation, and the cwd it does inherit is frozen at session **launch** — confidently stale if you work in a worktree — so give `context` absolute paths plus every constraint and prior finding it needs. Delegates get no per-child worktree, so parallel ones share one working tree: serialize file-modifying work.
+> For chained workflows (/test-issue), invoke the matching skill (`/<workflow>`) when it is installed; otherwise read and follow `.hermes/skills/hephaestus/<workflow>/SKILL.md`.
+
+> Hermes does not substitute `$ARGUMENTS` — read it as the arguments given in the user's request.
+
+Start working on issue $ARGUMENTS. Run autonomously through the full plan-critique-implement cycle.
+
+## Autonomy Rules
+
+- **Resolve ambiguity yourself.** If requirements are unclear, make reasonable assumptions based on codebase context, existing patterns, and the issue description. Document assumptions in commit messages and the eventual PR body. Do NOT stop to ask the user.
+- **Recover before escalating.** If an approach fails, try a different one. Only stop if you've exhausted alternatives AND the failure involves irreversible risk.
+
+## Phase 1: Context
+
+1. **Detect repo**: Run `git remote get-url origin` to identify the target repo.
+
+2. **Load context in parallel**:
+   - **Read the issue**: `gh issue view <#> --repo <detected-repo>`
+   - **Explore codebase** (explorer delegate(s)): Search for relevant files, understand current implementation
+   - **Recent history**: `git log --oneline -10`
+   - For complex issues, you **must** spawn multiple explorer delegates via `delegate_task` per subsystem
+
+3. **Resolve ambiguities**: If the issue is underspecified:
+   - Infer intent from related code, tests, and commit history
+   - Choose the simplest interpretation that satisfies the acceptance criteria
+   - Log each assumption as a bullet point for later inclusion in the PR body
+
+4. **Record scope**: Resolve the task change scope below before implementation; preserve its base through commits and pass it to `/test-issue` and the later `/ship` handoff.
+
+5. **Create feature branch**: `git checkout -b issue-<number>-<short-description>` where `<short-description>` is a kebab-case summary derived from the issue title.
+
+## Task change scope
+
+Use a supplied Scope; otherwise base it on explicit `--base` (stacked work), the PR base, or confirmed `origin/HEAD`, in that order—never a guess or `HEAD~1`. Scope is the unique merge-base-to-HEAD diff plus separate staged, unstaged, and relevant untracked changes (`git diff --no-renames`, `git diff --cached HEAD`, `git diff`, `git ls-files --others --exclude-standard`; inventory with `--name-only -z`). Report/pass root, base/merge-base/HEAD OIDs, included paths, exclusions/reasons, and ambiguity. A missing/conflicting base, multiple merge-bases, failed inspection, or unresolved relevance makes scope incomplete and cannot PASS/auto-pass. Retain the base across commits; repeat affected gates if it changes. Include deletions and both rename paths; never mutate files to inspect them.
+
+## Evidence records
+
+Each check yields one record: check, scope, command or method, outcome, and revision — HEAD OID and clean or dirty tree — plus any environment it depends on (tool versions, services, credentials). Outcome is passed, failed, blocked (could not run), not run, or not applicable. Required gates are the project's Development Commands (inferred ones when that section is absent), plus the critique at `/ship`, and only passed satisfies one; a gate the project does not define is not applicable, and any other check is optional. A record covers the delivered state while nothing it reads has changed: code, dependencies, configuration, environment, or — for doc checks — the docs. A dirty-tree record covers only if its dirty paths are outside what the check reads. Reuse a covering record, including one handed over by another command; rerun the rest, and rerun when unsure what a check reads. Keep exit status and failure output; never report a check that did not run as passed.
+
+## Phase 2: Plan-Critique Loop
+
+1. **Plan**: Break the issue into concrete steps with the todo tool. Identify independent tasks for parallel coders.
+2. **Self-critique** (general critique mode): Evaluate the plan for logic, assumptions, completeness, trade-offs.
+3. **Refine**: Update the plan to address weaknesses.
+4. **Re-critique**: Evaluate the refined plan.
+5. **Repeat** until verdict reaches **SOUND** (max 3 iterations).
+
+If critique iterations are exhausted:
+- **NEEDS REFINEMENT**: Proceed with the best version. The remaining concerns become "Known Limitations" documented in the PR.
+- **RETHINK**: Proceed with the most defensible subset of the plan — implement what IS sound, skip what isn't. File a follow-up issue for the unsound parts; if a skipped part carries a required criterion, the outcome is `[WIP]`, not `ready`.
+
+## Phase 3: Implement
+
+- Use parallel coder delegates via `delegate_task` (serialize file edits; Hermes delegates share one working tree) for independent changes
+- Sequential implementation for dependent changes
+- Commit each logical unit separately
+- If a task is blocked: try one alternative approach. If still blocked and no acceptance criterion requires it, defer it to a follow-up issue and continue. If a required criterion depends on it, stop and wind down `[WIP]`: commit, push, open a draft PR listing the unmet criteria, file a follow-up issue. A TODO never satisfies a required criterion.
+
+## Phase 4: Test → `/test-issue <#>`
+
+Refresh and pass the recorded Scope to `/test-issue <#>` to execute project quality gates and verify acceptance criteria. The pre-ship code critique is `/ship`'s job — running it here would just duplicate the gate.
+
+Continue to completion only when `/test-issue` reports every gate PASS and every required criterion met. A gate that could not run (BLOCKED) or an unverified criterion is not a pass: retry once if environmental, else wind down `[BLOCKED]` as below.
+
+If tests fail or a required criterion is unmet:
+- Analyze the root cause — don't blindly retry
+- Go back to Phase 2 with failure context (max 2 full cycles)
+- If still failing after 2 cycles: commit progress on the branch, create a draft PR (`--draft`) with `[FAILING]` prefix and failure analysis in the body, file a follow-up issue
+
+Report the outcome — `ready`, or the draft PR's prefix — with the recorded Scope, files changed, `/test-issue` evidence records for `/ship` to reuse, and assumptions. Only `ready` goes to `/ship`.
+
+Key constraints:
+- If the project has multiple sub-repos (e.g., backend + frontend), treat each as a separate git repo and commit in the right one

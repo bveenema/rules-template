@@ -1,0 +1,32 @@
+# Files the template owns. `sync` copies updates. `init` copies only when missing.
+# Project-owned paths are never overwritten even if they are listed as sync.
+# See NEVER_OVERWRITE in scripts/sync-from-template.py.
+
+sync lint
+sync tests
+sync .github/workflows/lint.yml
+sync .githooks
+sync lefthook.yml
+sync .cursor/BUGBOT.md
+sync .cursor/config/bugbot.yaml
+sync .cursor/rules/house-rules.mdc
+sync scripts/setup-hooks.sh
+sync scripts/install-gitleaks.sh
+sync scripts/pin-hephaestus-source.sh
+sync scripts/sync-from-template.py
+sync scripts/gitleaks-v8.30.1-checksums.txt
+sync kb/checks.md
+sync config/private-blocklist.example
+sync rules/README.md
+sync rules/example_forbidden_token.py
+sync rules/test_example_forbidden_token.py
+sync template/agents-house-rules.md
+sync template-sync.txt
+sync LICENSES/hephaestus.txt
+init config/banned-clients.txt
+init config/gitleaks-allowlist.txt
+init config/email-allowlist.txt
+init kb/index.md
+init .github/pull_request_template.md
+init .gitignore
+init CLAUDE.md

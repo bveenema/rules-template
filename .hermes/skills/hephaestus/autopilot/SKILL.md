@@ -1,0 +1,99 @@
+---
+name: autopilot
+description: "Run the full autonomous pipeline for issue <argument>. No…"
+platforms: [linux, macos, windows]
+metadata:
+  hermes:
+    category: hephaestus
+    tags: [hephaestus, delivery, autopilot]
+    requires_toolsets: [terminal]
+    related_skills: [start-issue, ship, finish]
+---
+<!-- requires: explorer -->
+<!-- chains: /start-issue, /ship, /finish -->
+<!-- generated from .ai/workflows/autopilot.md; do not edit directly -->
+
+> **Hermes:** this skill is the `/autopilot` adapter.
+> Where a step below delegates to a role (explorer), you **must** call `delegate_task` for it rather than doing that step yourself — measured on `/refactor`: orchestrators otherwise inline the whole workflow and never delegate. Each role's toolsets, cap and prompt are in `.hermes/agents/<role>.md`. A delegate inherits **none** of your conversation, and the cwd it does inherit is frozen at session **launch** — confidently stale if you work in a worktree — so give `context` absolute paths plus every constraint and prior finding it needs. Delegates get no per-child worktree, so parallel ones share one working tree: serialize file-modifying work.
+> For chained workflows (/start-issue, /ship, /finish), invoke the matching skill (`/<workflow>`) when it is installed; otherwise read and follow `.hermes/skills/hephaestus/<workflow>/SKILL.md`.
+
+> Hermes does not substitute `$ARGUMENTS` — read it as the arguments given in the user's request.
+
+Run the full autonomous pipeline for issue $ARGUMENTS. No human intervention required.
+
+If no issue number is provided, pick the highest-priority open issue from `gh issue list --state open --repo <detected-repo>` (prefer bugs over enhancements, older over newer). If no open issues exist, run **Self-Triage** (Phase 0) to generate work.
+
+## Autonomy Principles
+
+- **Decide, don't ask.** Make reasonable assumptions and document them in the PR body. Only stop for irreversible risk (data loss, security, force-push).
+- **Recover, don't report.** When something fails, try an alternative approach before escalating. Escalation is a last resort, not a first response.
+- **Stop clean, not mid-flight.** Never leave uncommitted changes, half-done branches, or orphaned state. Every stopping point must be a valid checkpoint.
+- **Create breadcrumbs.** When winding down, file issues for unfinished work so the next session can pick up seamlessly.
+
+---
+
+## Pipeline
+
+`/autopilot` is a thin orchestrator. It chains the dedicated commands (`/start-issue`, `/ship`, `/finish`) end-to-end and adds the pre-flight orient + self-triage that those individual commands don't do. Each chained command preserves its own retry semantics, gates, and wind-down behavior.
+
+### Phase 0: Self-Triage (only when no issues exist)
+
+If no open issues are found:
+1. Scan codebase for improvement opportunities:
+   - `grep -r "TODO\|FIXME\|HACK\|XXX"` for flagged technical debt
+   - Review CLAUDE.md for documented next steps
+   - Check CHANGELOG.md for recent patterns suggesting follow-up work
+   - Run explorer delegate(s) to identify code quality issues, missing tests, or architectural gaps
+2. Rank findings by impact (bugs > missing tests > tech debt > enhancements)
+3. Create the highest-impact issue via `gh issue create`
+4. Continue pipeline with the newly created issue
+
+### Phase 1: Orient
+- Run `git status` and `git log --oneline -5` for recent context
+- Detect repo via `git remote get-url origin`
+- If the working tree is dirty, record its physical path, absolute git-dir, symbolic branch, and HEAD; create a unique `task_stash_record`, then run `git stash push --include-untracked -m "$task_stash_record"`. Resolve exactly one stash OID by the full record-path marker, write the recorded values, OID, and `captured` state to that file, and retain its path for `/finish` and wind-down. Another worktree may add a newer stash, so never use a stash index or the top entry. Capture failure stops implementation and reports the preserved changes, stash, and record path; never guess an OID. Without the exact record, cleanup leaves every stash alone.
+
+### Phase 2: Start the issue → `/start-issue <#>`
+
+Run `/start-issue <#>`. It handles plan-critique loop, parallel coder delegates, implementation, and the test gate, and reports its outcome.
+
+Proceed to `/ship` only when `/start-issue` reports `ready`. Any other outcome (`[WIP]`, `[BLOCKED]`, `[FAILING]`) goes to wind-down — including incomplete work that has no draft PR yet, where wind-down opens it. Do not try to push past it.
+
+### Phase 3: Ship → `/ship <#>`
+
+Run `/ship <#>`. It updates docs, runs the pre-push critique and quality gates, pushes the branch, and opens a merge-ready PR. Merge is opt-in (see `/ship`); a caller that owns merge or CI wait passes `--no-merge`.
+
+If `/ship` ends in a draft PR (`[FAILING]`, `[BLOCKED]`), the issue did not ship: run Phase 4 for cleanup, then wind down. If `/ship` left the PR open (the default, or merge declined): the work is preserved. Still run Phase 4 — `/finish` branches on PR state and performs safe cleanup for unmerged PRs without closing the issue or deleting the branch.
+
+### Phase 4: Finish → `/finish <#>`
+
+Run `/finish <#>`. It closes the issue, deletes branches, files follow-ups, runs `/update-docs` when the PR diff requires it, captures a retrospective, and prints the session summary.
+
+If this issue shipped, there are additional open issues suitable for immediate work, and the session is still productive, loop back to Phase 1 with the next issue. Otherwise, wind down.
+
+---
+
+## Session Wind-Down Protocol
+
+When the pipeline reaches a natural stopping point (after Phase 4) or is forced to stop early:
+
+1. **Commit all work** — never leave uncommitted changes. Use descriptive commit messages.
+2. **Push the branch** — even for incomplete work, push so progress is preserved remotely. Incomplete work with no PR yet gets a draft PR carrying its outcome prefix.
+3. **Create breadcrumbs** — for any unfinished work, file GitHub issues with:
+   - What was attempted
+   - What failed or remains
+   - Suggested next approach
+4. **Clean local state** — use `/finish`'s task identity checks and exact stash restoration, including on early wind-down; never sweep branches or pop the top stash. Preserve resources when identity is missing, and report deferred cleanup or restoration conflicts. Do not continue to another issue with an unresolved restoration.
+5. **Print session summary**:
+   - Issues completed (merged or merge-pending PRs; drafts go under outstanding work)
+   - Issues created (with links)
+   - Outstanding work (with issue links)
+
+---
+
+## Guardrails
+
+- **Hard stops** (truly irreversible risk): security vulnerabilities being shipped, data loss paths, force-push to protected branches
+- **Soft stops** (proceed with documentation): ambiguous requirements (make assumption, document it), public API changes (implement with deprecation path, flag in PR), exhausted retries (wind down to a draft PR and follow-up issue — never shipped)
+- **Never**: force-push, rewrite published history, create PR with known security issues, delete remote branches that aren't yours
+- Everything else runs autonomously.

@@ -1,0 +1,5 @@
+#!/bin/sh
+# Same checks as CI. Fix failures before the commit is created.
+set -eu
+cd "$(git rev-parse --show-toplevel)"
+exec python3 -m lint
