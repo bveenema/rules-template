@@ -1,0 +1,35 @@
+#!/bin/sh
+# Select a Python 3.9+ interpreter and exec it with the remaining arguments.
+#
+# Usage: sh scripts/py -m lint
+#        sh scripts/py scripts/sync-from-template.py
+#
+# Order: python3, then python, then py -3. A candidate counts only when it
+# runs and its version is 3.9 or newer, so a Python 2 `python` is skipped.
+# Invoke this file with sh. Git Bash on Windows can do that without the
+# executable bit or a Python shebang.
+
+set -eu
+
+supports() {
+  "$@" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 9) else 1)' >/dev/null 2>&1
+}
+
+if command -v python3 >/dev/null 2>&1 && supports python3; then
+  exec python3 "$@"
+fi
+
+if command -v python >/dev/null 2>&1 && supports python; then
+  exec python "$@"
+fi
+
+if command -v py >/dev/null 2>&1 && supports py -3; then
+  exec py -3 "$@"
+fi
+
+# echo is a shell builtin, so this still works when PATH has no coreutils.
+echo "scripts/py: no Python 3.9 or newer interpreter was found on PATH." >&2
+echo "Install Python 3.9 or newer from https://www.python.org/downloads/ so that" >&2
+echo "one of these works: python3, python, or py -3." >&2
+echo "On Windows, run this from Git Bash." >&2
+exit 1

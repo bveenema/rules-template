@@ -1,0 +1,16 @@
+---
+description: House rules for lint, docs, secrets, and Hephaestus delivery flows
+alwaysApply: true
+---
+
+# House rules
+
+Use the Hephaestus flows for delivery work: `/orient`, `/autopilot`, `/critique`, `/ship`, and `/finish`.
+
+Before every commit and before every push, run `sh scripts/py -m lint`. Fix every failure yourself and run it again. Do not push code that fails lint.
+
+When a change touches code, update `CHANGELOG.md`, a page under `kb/`, and `README.md` in the same pull request. Use `[skip-docs]` only when a docs update is not appropriate for a trivial change. Partial markers are `[skip-changelog]`, `[skip-kb]`, and `[skip-readme]`.
+
+Never print secrets, credentials, connection strings, or project blocklist terms. Do not commit company-specific values. Those belong in `PRIVATE_INFO_BLOCKLIST` or `config/private-blocklist.txt`, which is git-ignored.
+
+Project-owned Cursor files that you may edit: `.cursor/BUGBOT.md`, `.cursor/config/bugbot.yaml`, and `.cursor/rules/house-rules.mdc`. Hephaestus-generated files under `.cursor/commands/`, `.cursor/agents/`, and `.cursor/rules/hephaestus.mdc` are updated by re-vendoring Hephaestus, not by hand.

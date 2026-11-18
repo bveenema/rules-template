@@ -1,0 +1,10 @@
+# Copy this file to config/private-blocklist.txt and add one term per line.
+# config/private-blocklist.txt is git-ignored. Never commit real terms.
+#
+# The lint also reads the same list from the PRIVATE_INFO_BLOCKLIST environment
+# variable. Use that for Cursor cloud agents (a Cursor secret) and for the CI
+# secret of the same name. Terms are case-insensitive literals of at least 3
+# characters. Lines starting with # are ignored.
+#
+# Example shape, not a real term:
+# project-term-here

@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.tools/
+config/private-blocklist.txt
+*.local
+.DS_Store

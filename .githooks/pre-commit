@@ -1,0 +1,6 @@
+#!/bin/sh
+# Same checks as CI. Fix failures before the commit is created.
+# sh runs the launcher so Git Bash does not need a Python shebang.
+set -eu
+cd "$(git rev-parse --show-toplevel)"
+exec sh scripts/py -m lint

@@ -1,0 +1,13 @@
+# Local hooks. CI runs the same `sh scripts/py -m lint` command.
+# Call sh explicitly so Git Bash on Windows does not need a Python shebang
+# or the executable bit on scripts/py.
+# commit-msg reuses .githooks/commit-msg, which reads the message file.
+pre-commit:
+  commands:
+    lint:
+      run: sh scripts/py -m lint
+
+commit-msg:
+  commands:
+    docs:
+      run: sh .githooks/commit-msg "{1}"

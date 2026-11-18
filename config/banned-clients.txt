@@ -1,0 +1,7 @@
+# Banned database clients and connection-string fragments.
+# One literal pattern per line. Lines starting with # are ignored.
+# Matching is case-sensitive against tracked file text.
+# An empty list turns the rule off.
+# This file is project-owned. Template sync does not overwrite it once it exists.
+#
+# Add the library names and connection fragments this project forbids.
