@@ -70,14 +70,38 @@ def is_code_path(path: str) -> bool:
     return rel.startswith(CODE_DIRS)
 
 
+_LINE_MARKERS = ("[skip-docs]", "[skip-changelog]", "[skip-kb]", "[skip-readme]")
+
+
+def markers_in_text(text: str) -> set[str]:
+    """Markers count only as the first token of a line, or as a line of markers.
+
+    A sentence that mentions the marker, including this repository's own docs,
+    does not opt out.
+    """
+    found: set[str] = set()
+    known = set(_LINE_MARKERS)
+    for raw in text.splitlines():
+        parts = raw.strip().split()
+        if not parts or parts[0] not in known:
+            continue
+        if all(part in known for part in parts):
+            found.update(parts)
+        else:
+            found.add(parts[0])
+    return found
+
+
 def markers_from(labels: list[str], texts: list[str]) -> dict[str, bool]:
     label_set = {label.strip().lower() for label in labels if label.strip()}
-    blob = "\n".join(texts)
-    skip_all = "skip-docs" in label_set or "[skip-docs]" in blob
+    text_markers: set[str] = set()
+    for text in texts:
+        text_markers.update(markers_in_text(text))
+    skip_all = "skip-docs" in label_set or "[skip-docs]" in text_markers
     return {
-        "changelog": skip_all or "skip-changelog" in label_set or "[skip-changelog]" in blob,
-        "kb": skip_all or "skip-kb" in label_set or "[skip-kb]" in blob,
-        "readme": skip_all or "skip-readme" in label_set or "[skip-readme]" in blob,
+        "changelog": skip_all or "skip-changelog" in label_set or "[skip-changelog]" in text_markers,
+        "kb": skip_all or "skip-kb" in label_set or "[skip-kb]" in text_markers,
+        "readme": skip_all or "skip-readme" in label_set or "[skip-readme]" in text_markers,
     }
 
 

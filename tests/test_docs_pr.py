@@ -32,6 +32,11 @@ class DocsEvaluateTest(unittest.TestCase):
         findings = evaluate(["lint/runner.py", "CHANGELOG.md"], [], ["[skip-kb] [skip-readme]"])
         self.assertEqual(findings, [])
 
+    def test_mention_in_prose_does_not_skip(self) -> None:
+        prose = "Document the opt-out as `[skip-docs]` in the pull request body."
+        findings = evaluate(["src/app.py"], [], [prose])
+        self.assertTrue(any("CHANGELOG.md" in item for item in findings))
+
     def test_markdown_only_does_not_require_docs(self) -> None:
         self.assertEqual(evaluate(["kb/index.md", "README.md"], [], []), [])
 
@@ -47,15 +52,18 @@ class DocsRepoTest(unittest.TestCase):
             (root / "src").mkdir()
             (root / "src" / "app.py").write_text("print('hi')\n", encoding="utf-8")
             commit_all(root, "add code")
-            previous = os.environ.get("LINT_BASE")
+            saved = {name: os.environ.get(name) for name in ("LINT_BASE", "GITHUB_EVENT_PATH", "GITHUB_BASE_REF")}
             os.environ["LINT_BASE"] = "main"
+            os.environ.pop("GITHUB_EVENT_PATH", None)
+            os.environ.pop("GITHUB_BASE_REF", None)
             try:
                 findings, _ = check(root)
             finally:
-                if previous is None:
-                    os.environ.pop("LINT_BASE", None)
-                else:
-                    os.environ["LINT_BASE"] = previous
+                for name, value in saved.items():
+                    if value is None:
+                        os.environ.pop(name, None)
+                    else:
+                        os.environ[name] = value
             self.assertTrue(any("CHANGELOG.md" in item for item in findings))
 
 

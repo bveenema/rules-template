@@ -13,3 +13,7 @@ All notable changes to this template are documented here.
 - Agent rules in `AGENTS.md`, `CLAUDE.md`, and `.cursor/rules/house-rules.mdc`.
 - `scripts/sync-from-template.py` to pull template updates into an existing repo without overwriting project-owned config.
 - Tests that show each rule failing a bad sample and passing a good one.
+
+### Fixed
+
+- A docs opt-out marker counts only when it is the first token on its line. Mentioning the marker in prose does not skip the check.

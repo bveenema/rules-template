@@ -54,10 +54,10 @@ When the diff against the base branch changes code, the same diff must update:
 
 Code is a source, script, workflow, or config file. Markdown under `kb/` and the readme itself are not code. See `is_code_path` in `lint/rules/docs_pr.py` for the exact set.
 
-Opt out when a doc update is not appropriate:
+Opt out when a doc update is not appropriate. The marker has to be the first token on its line (a commit subject, or its own line in the pull request body). Mentioning the marker in a sentence does not opt out.
 
-- `[skip-docs]` in the commit message or PR body, or a `skip-docs` label, skips all three.
-- `[skip-changelog]`, `[skip-kb]`, and `[skip-readme]` skip one each. The labels `skip-changelog`, `skip-kb`, and `skip-readme` do the same.
+- A line starting with `[skip-docs]`, or a `skip-docs` label, skips all three.
+- `[skip-changelog]`, `[skip-kb]`, and `[skip-readme]` skip one each. Several markers can share a line when the line contains only markers. The labels `skip-changelog`, `skip-kb`, and `skip-readme` do the same.
 
 The base ref is `LINT_BASE`, or `origin/$GITHUB_BASE_REF` in Actions, or `origin/main`. The upcoming commit message is `LINT_COMMIT_MSG`. The commit-msg hook sets that from the message you pass to `git commit`. The pre-commit hook runs before the message exists, so a local opt-out needs the variable set as well:
 

@@ -72,7 +72,7 @@ python3 -m unittest discover -s rules -p 'test_*.py' -v
 
 Python 3.11 or newer is enough. The only extra binary is gitleaks, installed with `scripts/install-gitleaks.sh`.
 
-A code change has to update `CHANGELOG.md`, a page under `kb/`, and `README.md`. For a trivial change, put `[skip-docs]` in the commit message or the pull request body, or add the `skip-docs` label. Partial markers are `[skip-changelog]`, `[skip-kb]`, and `[skip-readme]`. The pre-commit hook runs before git has the message, so export the same text when you opt out locally:
+A code change has to update `CHANGELOG.md`, a page under `kb/`, and `README.md`. For a trivial change, start the commit subject or a pull-request line with `[skip-docs]`, or add the `skip-docs` label. Partial markers are `[skip-changelog]`, `[skip-kb]`, and `[skip-readme]`. A sentence that only mentions the marker does not opt out. The pre-commit hook runs before git has the message, so export the same text when you opt out locally:
 
 ```bash
 LINT_COMMIT_MSG='[skip-docs] typo' git commit -m '[skip-docs] typo'
